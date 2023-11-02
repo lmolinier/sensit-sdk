@@ -41,7 +41,7 @@ SIZE_TOOL = $(TOOL_PATH)arm-none-eabi-size
 # -------------------
 CC_OPT   = -mcpu=cortex-m0 -mthumb -mfloat-abi=soft -g -Os -Wall -fmessage-length=0 -ffunction-sections
 CC_INC   = -Iinc -Iinc/sensit -Iinc/sigfox -Iinc/resources -Iinc/radio -Iinc/sensors -Iinc/tools
-CC_FLAGS = -DUART
+CC_FLAGS = -DUSB #-DDUMP_SERIAL -DFORCE_DOWNLINK
 
 
 # ---------------

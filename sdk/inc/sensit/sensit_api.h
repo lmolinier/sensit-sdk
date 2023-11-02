@@ -149,7 +149,7 @@ extern u8 firmware_version[16];
  * Use \link INTERRUPT_MASK \endlink to know wich peripheral
  * have a pending interrupt.
  *******************************************************************/
-volatile u8 pending_interrupt;
+extern volatile u8 pending_interrupt;
 
 
 /*!******************************************************************

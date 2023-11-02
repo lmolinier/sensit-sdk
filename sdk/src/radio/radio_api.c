@@ -13,7 +13,6 @@
 #include "etsi.h"
 #include "fcc.h"
 
-
 /******* LOCAL VARIABLES *******************************************/
 static radio_conf_e radio_conf;
 
@@ -90,6 +89,7 @@ error_t RADIO_API_send_message(rgb_color_e color, u8* data, u8 size, bool downli
     sfx_error_t err;
     error_t ret = RADIO_ERR_NONE;
 
+#if 0
     /* Check if transmission is allowed regarding regulations */
     if (radio_conf == SIGFOX_RC1)
     {
@@ -107,6 +107,7 @@ error_t RADIO_API_send_message(rgb_color_e color, u8* data, u8 size, bool downli
             return RADIO_ERR_NO_CHANNEL;
         }
     }
+#endif
 
     /* Turn ON Sens'it radio */
     err = SENSIT_API_switch_radio(TRUE, color);

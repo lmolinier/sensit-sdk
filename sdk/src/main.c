@@ -17,19 +17,34 @@
 #include "hts221.h"
 #include "ltr329.h"
 #include "fxos8700.h"
+#include "serial.h"
+#include "AT_parser.h"
 
 
 /******* GLOBAL VARIABLES ******************************************/
 u8 firmware_version[] = "TEMPLATE";
 
-
 /*******************************************************************/
+static void AT_report_error_code(error_t err)
+{
+    u8 code[4];
+    u8 i = 0;
+
+    SERIAL_put_data((u8*)"ERR=0x", 6);
+    AT_itoa((int)err, (char*)code, 16);
+    while (code[i] != '\0')
+    {
+        SERIAL_put_data(code+i, 1);
+        i++;
+    }
+}
 
 int main()
 {
     error_t err;
     button_e btn;
     u16 battery_level;
+    u16 counter=0;
 
     /* Start of initialization */
 
@@ -51,6 +66,9 @@ int main()
     /* Initialize accelerometer */
     err = FXOS8700_init();
     ERROR_parser(err);
+
+    /* Initialize serial line */
+    SERIAL_init();
 
     /* Clear pending interrupt */
     pending_interrupt = 0;
@@ -87,6 +105,38 @@ int main()
             {
                 /* Reset the device */
                 SENSIT_API_reset();
+            }
+
+            if (btn == BUTTON_TWO_PRESSES) 
+            {
+                error_t err;
+                u8 response[8] = {0,0,0,0,0,0,0,0};
+                u8 data[2] = { counter & 0xFF, (counter >> 8) & 0xFF};
+
+                u8 data_str[3];
+                SERIAL_put_data((u8*)"UL=", 3);
+                for ( int i = 1 ; i <= 2 ; i++)
+                {
+                    AT_itoa((int)data[2-i], (char*)data_str, 16);
+                    SERIAL_put_data(data_str, 2);
+                }
+                SERIAL_put_data((u8*)"\r\n", 2);
+                err = RADIO_API_send_message(RGB_RED, data, 2, TRUE, response);
+                if (err != RADIO_ERR_NONE)
+                {
+                    AT_report_error_code(err);
+                } else 
+                {
+                    u8 response_str[3];
+                    SERIAL_put_data((u8*)"DL=", 3);
+                    for ( int i = 1 ; i < 8 ; i++)
+                    {
+                        AT_itoa((int)response[8-i], (char*)response_str, 16);
+                        SERIAL_put_data(response_str, 2);
+                    }
+                }
+                SERIAL_put_data((u8*)"\r\n", 2);
+                counter++;
             }
 
             /* Clear interrupt */
